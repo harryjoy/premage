@@ -14,6 +14,7 @@ jQuery library for having live preview of selected image from file browser (inpu
 ## Usage
 
 ```javascript
+/* Here imgLive is the id of input having type=file. */
 $("#imglive").livePreview({
 	width:'64px',
 	height:'64px',

@@ -1,20 +1,31 @@
 (function($){
+	var previewShapes = ['square', 'round', 'ellipse', 'square-round', 'leaf-left', 'leaf-right'];
+	var previewAnimations = ['show-hide', 'slide', 'fade', 'bounce', 'blind', 'drop', 'explode', 'fold', 'puff', 'pulsate', 'shake'];
 	jQuery.fn.extend({
 		livePreview : function(options) {
 			var about = {
-					Version: 0.1,
-					Author: "Harsh Raval",
-					Created: "11 Feb 2014",
-					Updated: "11 Feb 2014"
+				Version: 0.1,
+				Author: "Harsh Raval",
+				Created: "11 Feb 2014",
+				Updated: "11 Feb 2014"
 			};
-			if (typeof options==="object" || !options){
-				return startPreview(this, options);
+			if (typeof options==="object" || !options) {
+				var valid = validateInput(this);
+				if (valid)
+					return startPreview(this, options);
+				else
+					return about;
 			} else{
 				return about;
 			}
 		}
 	});
-	var previewShapes = ['square', 'round', 'ellipse', 'square-round', 'leaf-left', 'leaf-right'];
+	/**
+	 * Validate if selected element is 'input with type is equal to file'.
+	 */
+	var validateInput = function (elem) {
+		return elem.is("input[type='file']");
+	};
 	var startPreview = function (elem, options) {
 		var defaults = { 
 			width:false, /*optional element width: boolean, pixels, percentage*/
