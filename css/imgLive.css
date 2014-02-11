@@ -1,8 +1,6 @@
 @CHARSET "ISO-8859-1";
 .preview-image {
 	/*border: 1px solid #CDCDCD;*/
-	max-width: 64px;
-	max-height: 64px;
 }
 .preview-image-container {
 	width: 64px;

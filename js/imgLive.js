@@ -28,6 +28,7 @@
 					type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
 					roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
 				},
+				background: 'white'
 			},
 			animation:{
 				enabled:false, /*whether to animate or not*/
@@ -39,18 +40,19 @@
 			theme: 'default' /*optional theme to be used*/
 		},
  		options = $.extend(true, defaults, options);
-		var previewImageContainer = new PreviewImageContainer(options.image_container);
+		var previewImageContainer = new PreviewImageContainer(options.image_container, options.shape, options.width, options.height);
 		var previewImage = new PreviewImage(options);
 		var fileInput = $(elem);
-		previewImageContainer.append(previewImage);
-		fileInput.after(previewImageContainer);
-		bindChangeEvent(fileInput);
+		previewImageContainer.get().append(previewImage.get());
+		fileInput.after(previewImageContainer.get());
+		bindChangeEvent(fileInput, previewImage);
 		return this;
 	};
 	/**
 	 * Preview image reference.
 	 */
-	PreviewImageContainer = function (options, imageShape) {
+	PreviewImageContainer = function (options, imageShape, imageWidth, imageHeight) {
+		this.previewImageContainer = undefined;
 		var defaults = { /*preview image container element*/
 			width:false, /*optional element width: boolean, pixels, percentage*/
 			height:false, /*optional element height: boolean, pixels, percentage*/
@@ -60,79 +62,102 @@
 				roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
 			},
 		};
-		this.setOptions = function (previewImageContainer) {
+		this.setOptions = function () {
 			options = $.extend(true, defaults, options);
 			if (options.position) {
 				if (options.position === 'left') {
-					previewImageContainer.addClass('preview-image-left');
+					this.previewImageContainer.addClass('preview-image-left');
 				} else if (options.position === 'right') {
-					previewImageContainer.addClass('preview-image-right');
+					this.previewImageContainer.addClass('preview-image-right');
 				}
 			}
 			if (options.width) {
-				previewImageContainer.css('width', options.width);
+				this.previewImageContainer.css('width', options.width);
+			} else {
+				var currentWidth = parseFloat(this.previewImageContainer.width());
+				imageWidth = parseFloat(imageWidth);
+				if (currentWidth < imageWidth) {
+					this.previewImageContainer.css('width', imageWidth);
+				}
 			}
 			if (options.height) {
-				previewImageContainer.css('height', options.height);
+				this.previewImageContainer.css('height', options.height);
+			} else {
+				var currentHeight = parseFloat(this.previewImageContainer.height());
+				imageHeight = parseFloat(imageHeight);
+				if (currentHeight < imageHeight) {
+					this.previewImageContainer.css('height', imageHeight);
+				}
 			}
-			validateAndUpdateShape(previewImageContainer, options.shape, true, imageShape);
+			if (options.background) {
+				this.previewImageContainer.css('background', options.background);
+			}
+			validateAndUpdateShape(this.previewImageContainer, options.shape, true, imageShape);
+			
 		};
 		this.draw = function () {
-			var previewImageContainer = $("<div></div>").addClass("preview-image-container");
-			this.setOptions(previewImageContainer);
-			return previewImageContainer;
+			this.previewImageContainer = $("<div></div>").addClass("preview-image-container");
+			this.setOptions();
 		};
-		return this.draw();
+		this.get = function () {
+			if (this.previewImageContainer && this.previewImageContainer !== undefined){
+			} else {this.draw();}
+			return this.previewImageContainer;
+		};
 	};
 	/**
 	 * Preview image reference.
 	 */
-	PreviewImage = function (options) {
+	PreviewImage = function (options, animator) {
+		this.previewImage = undefined;
+		this.animator = animator;
 		var defaults = { 
 			width:false, /*optional element width: boolean, pixels, percentage*/
 			height:false, /*optional element height: boolean, pixels, percentage*/
-			default_image: 'Awesome.png', /*optional default image*/
-			image_container:{ /*preview image container element*/
-				width:false, /*optional element width: boolean, pixels, percentage*/
-				height:false, /*optional element height: boolean, pixels, percentage*/
-				position: 'right', /*determines the position of container (left or right)*/
-				shape:{
-					type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
-					roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
-				},
-			},
-			animation:{
-				enabled:false, /*whether to animate or not*/
-			},
+			default_image: '', /*optional default image*/
 			shape:{
 				type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
 				roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
 			},
 			theme: 'default' /*optional theme to be used*/
 		};
-		this.setOptions = function (previewImage) {
+		this.setOptions = function () {
 			options = $.extend(true, defaults, options);
 			if (options.width) {
-				previewImage.css('width', options.width);
+				this.previewImage.css('width', options.width);
 			}
 			if (options.height) {
-				previewImage.css('height', options.height);
+				this.previewImage.css('height', options.height);
 			}
-			validateAndUpdateShape(previewImage, options.shape, false);
+			validateAndUpdateShape(this.previewImage, options.shape, false);
 		};
 		this.draw = function () {
-			var previewImage = $("<img />").addClass('preview-image').attr('src', options.default_image).attr('id', 'img-live-preview-id');
-			this.setOptions(previewImage);
-			return previewImage;
+			this.previewImage = $("<img />").addClass('preview-image').attr('src', options.default_image).attr('id', 'img-live-preview-id');
+			this.setOptions(this.previewImage);
 		};
-		return this.draw();
+		this.get = function () {
+			if (this.previewImage && this.previewImage !== undefined){
+			} else {this.draw();}
+			return this.previewImage;
+		};
+		this.update = function (source) {
+			this.previewImage.attr('src', source);
+		};
+	};
+	PreviewImageAnimator = function (options) {
+		var defaults = {
+			enabled:false, /*whether to animate or not*/
+		};
+		this.setOptions = function (previewImage) {
+			options = $.extend(true, defaults, options);
+		};
 	};
 	/**
 	 * Binds change event on file box.
 	 */
-	var bindChangeEvent = function (fileInput) {
+	var bindChangeEvent = function (fileInput, previewImage) {
 		fileInput.on('change', function() {
-			readAndPreviewImage(this);
+			readAndPreviewImage(this, previewImage);
 		});
 	};
 	/**
@@ -167,11 +192,11 @@
 	 * @param input
 	 * @returns
 	 */
-	var readAndPreviewImage = function (input) {
+	var readAndPreviewImage = function (input, previewImage) {
 		if (input.files && input.files[0]) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
-				$("#img-live-preview-id").attr('src', e.target.result);
+				previewImage.update(e.target.result);
 			};
 			reader.readAsDataURL(input.files[0]);
 		}
