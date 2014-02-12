@@ -12,10 +12,12 @@
         "created on": "11 Feb 2014",
         "licenses": ["MIT"],
         "homepage": "https://github.com/harryjoy/premage",
+        "issues": "https://github.com/harryjoy/premage/issues",
+        "wiki": "https://github.com/harryjoy/premage/wiki",
         "dependencies": ["jquery", "jquery-ui"]
 	};
 	jQuery.fn.extend({
-		livePreview : function(options) {
+		premage : function(options) {
 			if (typeof options==="object" || !options) {
 				var valid = validateInput(this);
 				if (valid) {
