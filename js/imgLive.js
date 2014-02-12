@@ -1,25 +1,43 @@
 (function($){
 	var previewShapes = ['square', 'round', 'ellipse', 'square-round', 'leaf-left', 'leaf-right'];
-	var previewAnimations = ['show-hide', 'slide', 'fade', 'bounce', 'blind', 'drop', 'explode', 'fold', 'puff', 'pulsate', 'shake'];
+	var previewAnimations = ['show-hide', 'slide', 'fade', 'bounce', 'blind', 'drop', 'explode', 'fold', 'puff', 'pulsate', 'shake', 'clip'];
+	var about = {
+		"name": "Premage",
+		"title": "Live Image Preview",
+		"description": "jQuery plugin for having live preview of selected image from file browser (input[type=file]).",
+		"keywords": ["file", "live preview", "image"],
+        "version": "1.0",
+        "author": {
+        	"name": "Harsh Raval"
+        },
+        "licenses": [{
+        	"type": "MIT",
+        	"url": "https://github.com/jquery/jquery-ui/blob/1.10.4/MIT-LICENSE.txt"
+        }],
+        "homepage": "https://github.com/harryjoy/premage",
+        "dependencies": ["jquery", "jquery-ui"]
+	};
 	jQuery.fn.extend({
 		livePreview : function(options) {
-			var about = {
-				Version: 0.1,
-				Author: "Harsh Raval",
-				Created: "11 Feb 2014",
-				Updated: "11 Feb 2014"
-			};
 			if (typeof options==="object" || !options) {
 				var valid = validateInput(this);
-				if (valid)
+				if (valid) {
+					setPropertiesToElem(this);
 					return startPreview(this, options);
-				else
+				} else {
 					return about;
+				}
 			} else{
 				return about;
 			}
 		}
 	});
+	/**
+	 * Check and set required properties to element.
+	 */
+	var setPropertiesToElem = function (elem) {
+		
+	};
 	/**
 	 * Validate if selected element is 'input with type is equal to file'.
 	 */
@@ -28,82 +46,78 @@
 	};
 	var startPreview = function (elem, options) {
 		var defaults = { 
-			width:false, /*optional element width: boolean, pixels, percentage*/
-			height:false, /*optional element height: boolean, pixels, percentage*/
-			default_image: '', /*optional default image*/
-			image_container:{ /*preview image container element*/
-				width:false, /*optional element width: boolean, pixels, percentage*/
-				height:false, /*optional element height: boolean, pixels, percentage*/
-				position: 'right', /*determines the position of container (left or right)*/
+			width:false,
+			height:false,
+			default_image: '',
+			image_container:{ 
+				width:false, 
+				height:false, 
+				position: 'right', 
 				shape:{
-					type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
-					roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
+					type: 'square-round',
+					roundness: '5px'
 				},
 				background: 'white'
 			},
 			animation:{
-				enabled:false, /*whether to animate or not*/
+				enabled:false,
+				type: 'slide'
 			},
 			shape:{
-				type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
-				roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
+				type: 'square-round',
+				roundness: '5px'
 			},
-			theme: 'default' /*optional theme to be used*/
+			theme: 'default'
 		},
  		options = $.extend(true, defaults, options);
 		var previewImageContainer = new PreviewImageContainer(options.image_container, options.shape, options.width, options.height);
-		var previewImage = new PreviewImage(options);
+		var previewImage = new PreviewImage(options, previewImageContainer);
 		var fileInput = $(elem);
 		previewImageContainer.get().append(previewImage.get());
+		previewImageContainer.setAnimator(new PreviewImageAnimator(options.animation));
 		fileInput.after(previewImageContainer.get());
 		bindChangeEvent(fileInput, previewImage);
 		return this;
 	};
 	/**
-	 * Preview image reference.
+	 * Preview image container reference.
+	 * @param options
+	 * @param imageShape
+	 * @param imageWidth
+	 * @param imageHeight
 	 */
 	PreviewImageContainer = function (options, imageShape, imageWidth, imageHeight) {
 		this.previewImageContainer = undefined;
-		var defaults = { /*preview image container element*/
-			width:false, /*optional element width: boolean, pixels, percentage*/
-			height:false, /*optional element height: boolean, pixels, percentage*/
-			position: 'right', /*determines the position of container (left or right)*/
-			shape:{
-				type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
-				roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
-			},
-		};
+		this.options = options;
+		this.animator = undefined;
 		this.setOptions = function () {
-			options = $.extend(true, defaults, options);
-			if (options.position) {
-				if (options.position === 'left') {
+			if (this.options.position) {
+				if (this.options.position === 'left') {
 					this.previewImageContainer.addClass('preview-image-left');
-				} else if (options.position === 'right') {
+				} else if (this.options.position === 'right') {
 					this.previewImageContainer.addClass('preview-image-right');
 				}
 			}
-			if (options.width) {
-				this.previewImageContainer.css('width', options.width);
-			} else {
-				var currentWidth = parseFloat(this.previewImageContainer.width());
-				imageWidth = parseFloat(imageWidth);
-				if (currentWidth < imageWidth) {
-					this.previewImageContainer.css('width', imageWidth);
-				}
+			if (this.options.width) {
+				this.previewImageContainer.css('width', this.options.width);
 			}
-			if (options.height) {
-				this.previewImageContainer.css('height', options.height);
-			} else {
-				var currentHeight = parseFloat(this.previewImageContainer.height());
-				imageHeight = parseFloat(imageHeight);
-				if (currentHeight < imageHeight) {
-					this.previewImageContainer.css('height', imageHeight);
-				}
+			var currentWidth = parseFloat(this.previewImageContainer.width());
+			imageWidth = parseFloat(imageWidth);
+			if (currentWidth < imageWidth) {
+				this.previewImageContainer.css('width', imageWidth);
 			}
-			if (options.background) {
-				this.previewImageContainer.css('background', options.background);
+			if (this.options.height) {
+				this.previewImageContainer.css('height', this.options.height);
 			}
-			validateAndUpdateShape(this.previewImageContainer, options.shape, true, imageShape);
+			var currentHeight = parseFloat(this.previewImageContainer.height());
+			imageHeight = parseFloat(imageHeight);
+			if (currentHeight < imageHeight) {
+				this.previewImageContainer.css('height', imageHeight);
+			}
+			if (this.options.background) {
+				this.previewImageContainer.css('background', this.options.background);
+			}
+			validateAndUpdateShape(this.previewImageContainer, this.options.shape, true, imageShape);
 			
 		};
 		this.draw = function () {
@@ -115,52 +129,124 @@
 			} else {this.draw();}
 			return this.previewImageContainer;
 		};
+		this.getOptions = function () {
+			return this.options;
+		};
+		this.getAnimator = function () {
+			return this.animator;
+		};
+		this.setAnimator = function (animator) {
+			this.animator = animator;
+		};
+		this.animate = function (animationOptions, callback) {
+			if (animationOptions.enabled && this.animator) {
+				this.animator.animate(this.previewImageContainer, false, callback);
+			}
+		};
 	};
 	/**
 	 * Preview image reference.
+	 * @param options
+	 * @param animator
 	 */
-	PreviewImage = function (options, animator) {
+	PreviewImage = function (options, previewImageContainer) {
 		this.previewImage = undefined;
-		this.animator = animator;
-		var defaults = { 
-			width:false, /*optional element width: boolean, pixels, percentage*/
-			height:false, /*optional element height: boolean, pixels, percentage*/
-			default_image: '', /*optional default image*/
-			shape:{
-				type: 'square-round', /*optional the shape of preview image, any one from previewShapes*/
-				roundness: '5px' /*optional only used when type is square-round. Determines the border radius.*/
-			},
-			theme: 'default' /*optional theme to be used*/
-		};
+		this.options = options;
+		this.previewImageContainer = previewImageContainer;
 		this.setOptions = function () {
-			options = $.extend(true, defaults, options);
-			if (options.width) {
-				this.previewImage.css('width', options.width);
+			if (this.options.width) {
+				this.previewImage.css('width', this.options.width);
 			}
-			if (options.height) {
-				this.previewImage.css('height', options.height);
+			if (this.options.height) {
+				this.previewImage.css('height', this.options.height);
 			}
-			validateAndUpdateShape(this.previewImage, options.shape, false);
+			validateAndUpdateShape(this.previewImage, this.options.shape, false);
 		};
 		this.draw = function () {
-			this.previewImage = $("<img />").addClass('preview-image').attr('src', options.default_image).attr('id', 'img-live-preview-id');
-			this.setOptions(this.previewImage);
+			this.previewImage = $("<img />").addClass('preview-image').attr('src', this.options.default_image).attr('id', 'img-live-preview-id');
+			this.setOptions();
 		};
 		this.get = function () {
 			if (this.previewImage && this.previewImage !== undefined){
 			} else {this.draw();}
 			return this.previewImage;
 		};
+		this.getOptions = function () {
+			return this.options;
+		};
 		this.update = function (source) {
-			this.previewImage.attr('src', source);
+			var self = this;
+			this.animate(function () {
+				self.previewImage.attr('src', source);
+				self.animate();
+			});
+		};
+		this.animate = function (callback) {
+			if (this.options.animation.enabled) {
+				this.previewImageContainer.animate(this.options.animation, callback);
+			}
 		};
 	};
+	/**
+	 * Image animator reference.
+	 * @param options
+	 * @returns {PreviewImageAnimator}
+	 */
 	PreviewImageAnimator = function (options) {
-		var defaults = {
-			enabled:false, /*whether to animate or not*/
+		this.options = options;
+		this.animate = function (elem, doTwice, callback) {
+			if (!options.enabled) {
+				return;
+			}
+			if (this.validateAnimationType()) {
+				this.run(elem, callback);
+				if (doTwice) this.run(elem);
+			} else {
+				throw new InvalidAnimationException("Animation type not valid.");
+			}
 		};
-		this.setOptions = function (previewImage) {
-			options = $.extend(true, defaults, options);
+		this.validateAnimationType = function () {
+			return $.inArray(options.type, previewAnimations) > -1;
+		};
+		this.run = function (elem, callback) {
+			switch(options.type) {
+			case 'show-hide':
+				elem.toggle(callback);
+				break;
+			case 'slide':
+				elem.slideToggle(callback);
+				break;
+			case 'fade':
+				elem.toggle( "fade", callback );
+				break;
+			case 'bounce':
+				elem.toggle( "bounce", { times: 3 },  callback );
+				break;
+			case 'blind':
+				elem.toggle( "blind", callback );
+				break;
+			case 'drop':
+				elem.toggle( "drop", callback );
+				break;
+			case 'explode':
+				elem.toggle( "explode", callback );
+				break;
+			case 'fold':
+				elem.toggle( "fold", callback );
+				break;
+			case 'puff':
+				elem.toggle( "puff", callback );
+				break;
+			case 'pulsate':
+				elem.toggle( "pulsate", callback );
+				break;
+			case 'shake':
+				elem.toggle( "shake", callback );
+				break; 
+			case 'clip':
+				elem.toggle( "clip", callback );
+				break;
+			}
 		};
 	};
 	/**
@@ -196,6 +282,14 @@
 	 * @returns
 	 */
 	function InvalidShapeException(message) {
+		this.message = message;
+	}
+	/**
+	 * Function for custom exception for invalid animation type.
+	 * @param message
+	 * @returns
+	 */
+	function InvalidAnimationException(message) {
 		this.message = message;
 	}
 	/**
