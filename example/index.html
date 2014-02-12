@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Img Live</title>
+<link href="premage/src/css/premage.css" rel="stylesheet" />
+<link href="jquery-ui-1.10.4.custom.min.css" rel="stylesheet" />
+<script src="jquery-1.10.2.js"></script>
+<script src="jquery-ui-1.10.4.custom.min.js" type="text/javascript" ></script>
+<script type="text/javascript" src="premage/src/js/premage.js"></script>
+<script>
+$(document).ready(function() {
+	var a = $("#noMeaningOfThisId").premage();
+	console.log(a);
+	var b = $("#imglive").premage();
+});
+</script>
+</head>
+<body>
+<input type="file" name="imglive" id="imglive" />
+</body>
+</html>
