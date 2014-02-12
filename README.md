@@ -27,3 +27,7 @@ $("#imglive").premage({
 ## More Details
 
 [Wiki Pages](https://github.com/harryjoy/premage/wiki).
+
+## Download latest release
+
+[Click Here](https://github.com/harryjoy/premage/releases/download/v1.0/premage.zip)
