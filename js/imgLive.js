@@ -3,17 +3,14 @@
 	var previewAnimations = ['show-hide', 'slide', 'fade', 'bounce', 'blind', 'drop', 'explode', 'fold', 'puff', 'pulsate', 'shake', 'clip'];
 	var about = {
 		"name": "Premage",
-		"title": "Live Image Preview",
 		"description": "jQuery plugin for having live preview of selected image from file browser (input[type=file]).",
 		"keywords": ["file", "live preview", "image"],
         "version": "1.0",
         "author": {
         	"name": "Harsh Raval"
         },
-        "licenses": [{
-        	"type": "MIT",
-        	"url": "https://github.com/jquery/jquery-ui/blob/1.10.4/MIT-LICENSE.txt"
-        }],
+        "created on": "11 Feb 2014",
+        "licenses": ["MIT"],
         "homepage": "https://github.com/harryjoy/premage",
         "dependencies": ["jquery", "jquery-ui"]
 	};
@@ -36,7 +33,11 @@
 	 * Check and set required properties to element.
 	 */
 	var setPropertiesToElem = function (elem) {
-		
+		var acceptProp = $(elem).attr("accept");
+		if (acceptProp && acceptProp !== undefined) {
+		} else {
+			$(elem).attr("accept", "image/png, image/jpeg, image/jpg");
+		}
 	};
 	/**
 	 * Validate if selected element is 'input with type is equal to file'.
@@ -175,11 +176,15 @@
 			return this.options;
 		};
 		this.update = function (source) {
-			var self = this;
-			this.animate(function () {
-				self.previewImage.attr('src', source);
-				self.animate();
-			});
+			if (this.options.animation.enabled) {
+				var self = this;
+				this.animate(function () {
+					self.previewImage.attr('src', source);
+					self.animate();
+				});
+			} else {
+				this.previewImage.attr('src', source);
+			}
 		};
 		this.animate = function (callback) {
 			if (this.options.animation.enabled) {
