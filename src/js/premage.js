@@ -339,6 +339,8 @@
 			case 'square-round':
 				elem.addClass('preview-image-square-round');
 				elem.css('border-radius', shape.roundness);
+				elem.css('-webkit-border-radius', shape.roundness);
+				elem.css('-moz-border-radius', shape.roundness);
 				break;
 			case 'leaf-left':
 				elem.addClass('preview-image-leaf-left');

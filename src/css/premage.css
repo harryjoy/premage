@@ -1,6 +1,5 @@
 @CHARSET "ISO-8859-1";
 .preview-image {
-	/*border: 1px solid #CDCDCD;*/
 	width: 64px;
 	height: 64px;
 }
@@ -15,19 +14,41 @@
 .preview-image-left {
 	float: left;
 }
-.preview-image-square{}
-.preview-image-round{border-radius: 50%;}
-.preview-image-ellipse{border-radius: 25%;}
-.preview-image-square-round{border-radius: 5px}
-.preview-image-leaf-left{
-	border-top-left-radius: 25px;
+.preview-image-square {}
+.preview-image-round {
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+}
+.preview-image-ellipse {
+	-webkit-border-radius: 25%;
+	-moz-border-radius: 25%;
+	border-radius: 25%;
+}
+.preview-image-square-round {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px
+}
+.preview-image-leaf-left {
+	-webkit-border-radius: 25px;
+	-webkit-border-top-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius: 25px;
+	-moz-border-radius-topright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-radius: 25px;
 	border-top-right-radius: 5px;
-	border-bottom-right-radius: 25px;
 	border-bottom-left-radius: 5px;
 }
-.preview-image-leaf-right{
-	border-top-left-radius: 5px;
+.preview-image-leaf-right {
+	-webkit-border-radius: 5px;
+	-webkit-border-top-right-radius: 25px;
+	-webkit-border-bottom-left-radius: 25px;
+	-moz-border-radius: 5px;
+	-moz-border-radius-topright: 25px;
+	-moz-border-radius-bottomleft: 25px;
+	border-radius: 5px;
 	border-top-right-radius: 25px;
-	border-bottom-right-radius: 5px;
 	border-bottom-left-radius: 25px;
 }
